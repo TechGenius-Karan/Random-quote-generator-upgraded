@@ -3,6 +3,7 @@ import cors from "cors";
 import mongoose from "mongoose";
 import dotenv from "dotenv";
 import Quote from "./models/Quote.js";
+import OpenAI from "openai";
 
 const app = express();
 app.use(cors());
