@@ -127,3 +127,18 @@ async function fetchQuotes(category = null) {
 }
 
 fetchQuotes();
+
+
+async function testAI() {
+  const res = await fetch(`${API_URL}/ai-quote`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      category: "Motivation",
+      topic: "discipline"
+    })
+  });
+
+  const data = await res.json();
+  console.log(data);
+}

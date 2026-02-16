@@ -5,6 +5,10 @@ import dotenv from "dotenv";
 import Quote from "./models/Quote.js";
 import OpenAI from "openai";
 
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
 const app = express();
 app.use(cors());
 app.use(express.json());
@@ -45,6 +49,52 @@ app.post("/quotes", async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 });
+
+//AI route of the project
+
+app.post("/ai-quote", async (req, res) => {
+  try {
+    const { category, topic } = req.body;
+
+    if (!category || !topic) {
+      return res.status(400).json({ error: "Category and topic required" });
+    }
+
+    const prompt = `
+    Generate a short inspirational quote.
+    Category: ${category}
+    Topic: ${topic}
+    Keep it under 25 words.
+    Return only the quote text.
+    `;
+
+    const completion = await openai.chat.completions.create({
+      model: "gpt-3.5-turbo",
+      messages: [
+        { role: "system", content: "You are a creative quote generator." },
+        { role: "user", content: prompt }
+      ],
+      max_tokens: 60,
+    });
+
+    const aiQuote = completion.choices[0].message.content.trim();
+
+    res.json({
+      text: aiQuote,
+      author: "AI"
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "AI generation failed" });
+  }
+});
+
+
+app.get("/routes-check", (req, res) => {
+  res.send("AI route exists");
+});
+
 
 
 
