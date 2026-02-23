@@ -66,7 +66,7 @@ app.post("/ai-quote", async (req, res) => {
     const prompt = `Generate a short inspirational quote about ${topic} in the category of ${category}. Keep it under 25 words. Return only the quote.`;
 
     const response = await axios.post(
-      "https://router.huggingface.co/hf-inference/models/google/flan-t5-base",
+      "https://router.huggingface.co/hf-inference/models/HuggingFaceH4/zephyr-7b-beta",
       {
         inputs: prompt,
       },
@@ -77,7 +77,7 @@ app.post("/ai-quote", async (req, res) => {
       }
     );
 
-    const aiQuote = response.data[0]?.generated_text || "AI could not generate a quote.";
+    const aiQuote = response.data.generated_text || "AI could not generate a quote.";
 
     res.json({
       text: aiQuote.trim(),
