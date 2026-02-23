@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import Quote from "./models/Quote.js";
 import OpenAI from "openai";
+import axios from "axios";
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -50,6 +51,8 @@ app.post("/quotes", async (req, res) => {
   }
 });
 
+
+
 //AI route of the project
 
 app.post("/ai-quote", async (req, res) => {
@@ -60,32 +63,29 @@ app.post("/ai-quote", async (req, res) => {
       return res.status(400).json({ error: "Category and topic required" });
     }
 
-    const prompt = `
-    Generate a short inspirational quote.
-    Category: ${category}
-    Topic: ${topic}
-    Keep it under 25 words.
-    Return only the quote text.
-    `;
+    const prompt = `Generate a short inspirational quote about ${topic} in the category of ${category}. Keep it under 25 words. Return only the quote.`;
 
-    const completion = await openai.chat.completions.create({
-      model: "gpt-3.5-turbo",
-      messages: [
-        { role: "system", content: "You are a creative quote generator." },
-        { role: "user", content: prompt }
-      ],
-      max_tokens: 60,
-    });
+    const response = await axios.post(
+      "https://api-inference.huggingface.co/models/google/flan-t5-base",
+      {
+        inputs: prompt,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.HF_API_KEY}`,
+        },
+      }
+    );
 
-    const aiQuote = completion.choices[0].message.content.trim();
+    const aiQuote = response.data[0]?.generated_text || "AI could not generate a quote.";
 
     res.json({
-      text: aiQuote,
-      author: "AI"
+      text: aiQuote.trim(),
+      author: "AI",
     });
 
   } catch (error) {
-    console.error(error);
+    console.error("HF Error:", error.response?.data || error.message);
     res.status(500).json({ error: "AI generation failed" });
   }
 });
