@@ -66,7 +66,7 @@ app.post("/ai-quote", async (req, res) => {
     const prompt = `Generate a short inspirational quote about ${topic} in the category of ${category}. Keep it under 25 words. Return only the quote.`;
 
     const response = await axios.post(
-      "https://api-inference.huggingface.co/models/google/flan-t5-base",
+      "https://router.huggingface.co/hf-inference/models/google/flan-t5-base",
       {
         inputs: prompt,
       },
